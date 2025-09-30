@@ -1,16 +1,16 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import 'dotenv/config';
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl: string | undefined = process.env.SUPABASE_URL || "";
-const supabaseKey: string | undefined = process.env.SUPABASE_ANON_KEY || "";
+// read envs
+const supabaseUrl: string = process.env.SUPABASE_URL ?? "";
+const supabaseKey: string = process.env.SUPABASE_ANON_KEY ?? "";
 
-if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Missing Supabase URL or Key in environment variables.");
+// create client only if both exist
+let supabase: ReturnType<typeof createClient> | null = null;
+
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+} else {
+  console.warn("⚠️ Supabase URL or Key is missing. Some features may not work.");
 }
 
-// Initialize and export the client
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
-
-export function logSupabaseStatus() {
-    console.log('Supabase client initialized and ready.');
-}
+export default supabase;
