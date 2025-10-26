@@ -1,40 +1,88 @@
-import fastify from 'fastify';
 import 'dotenv/config';
-import supabase from './db/supabase';
-import { connectMongoDB } from './db/mongo';
+import fastify, { FastifyRequest, FastifyReply } from 'fastify';
+import { supabaseManager } from './db/supabase';
+import { connectMongoDB, getMongooseConnection } from './db/mongo';
+import productRoutes from './routes/v1/product.route';
+import { logger } from './utils/logger';
+import { Connection as MongooseConnection } from 'mongoose';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    mongo: MongooseConnection;
+    supabase: any;
+  }
+}
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
+const HOST = process.env.HOST || '0.0.0.0';
 
-const server = fastify({
-  logger: true
+const server = fastify({ logger: true });
+
+// =========================
+// Global CORS Middleware
+// =========================
+server.addHook('preHandler', (req, reply, done) => {
+  reply.header('Access-Control-Allow-Origin', '*');
+  reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    reply.send();
+  } else {
+    done();
+  }
 });
 
-server.get('/', async (request, reply) => {
-  return { 
-    message: 'Jewelry E-commerce Backend API Root', 
-    status: 'Running',
-    version: '1.0'
-  };
+// =========================
+// Root Route
+// =========================
+server.get('/', async (req, reply) => ({
+  message: 'Jewelry E-commerce Backend API Root',
+  status: 'Running',
+  version: '1.0',
+}));
+
+// =========================
+// onSend Hook
+// =========================
+server.addHook('onSend', async (req: FastifyRequest, reply: FastifyReply, payload: any) => {
+  try {
+    if (typeof payload === 'string' && (reply.statusCode === 200 || reply.statusCode === 201)) {
+      // Optional modifications
+    }
+  } catch (err) {
+    console.error('Full error in onSend hook:', err);
+    logger.error('Error in onSend hook:', err);
+  }
+  return payload;
 });
 
+// =========================
+// Server Startup
+// =========================
 const start = async () => {
   try {
-    // 1. Connect to Databases
+    // MongoDB
     await connectMongoDB();
+    const mongooseConnection = getMongooseConnection();
+    server.decorate('mongo', mongooseConnection);
+    logger.info('MongoDB connected successfully');
 
-    // Optional: log Supabase status without crashing
-    if (supabase) {
-      server.log.info("Supabase connected ✅");
-    } else {
-      server.log.warn("Supabase not configured ⚠️");
-    }
+    // Supabase
+    supabaseManager.initialize();
+    const supabaseClient = supabaseManager.getClient();
+    server.decorate('supabase', supabaseClient);
+    logger.info('Supabase initialized successfully');
 
-    // 2. Start Fastify
-    await server.listen({ port: PORT, host: '0.0.0.0' });
-    server.log.info(`Server listening at http://localhost:${PORT}`);
+    // Routes
+    await server.register(productRoutes, { prefix: '/api/v1' });
 
+    // Start server
+    await server.listen({ port: PORT, host: HOST });
+    logger.info(`🚀 Server running at http://${HOST}:${PORT}`);
   } catch (err) {
-    server.log.error(err);
+    console.error('Full server startup error:', err);
+    logger.error('Failed to start server:', err);
     process.exit(1);
   }
 };
