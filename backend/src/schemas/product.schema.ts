@@ -8,7 +8,15 @@ const getProductsQuerySchema = {
   type: 'object',
   properties: {
     page: { type: 'string', pattern: '^[1-9][0-9]*$', default: '1' },
-    limit: { type: 'string', pattern: '^[1-9][0-9]*$', default: '9' },
+    limit: { type: 'string', pattern: '^[1-9][0-9]*$', default: '12' },
+    sort: { type: 'string', enum: ['newest','best_sellers','price_asc','price_desc','popular'], default: 'newest' },
+    q: { type: 'string' },
+    category: { type: 'string' },
+    min_price: { type: 'string', pattern: '^[0-9]+(\\.[0-9]{1,2})?$' },
+    max_price: { type: 'string', pattern: '^[0-9]+(\\.[0-9]{1,2})?$' },
+    metal_type: { type: 'string' },
+    stone_type: { type: 'string' },
+    is_featured: { type: 'string', enum: ['true','false'] }
   },
   additionalProperties: false,
 };

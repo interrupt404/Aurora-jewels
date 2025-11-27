@@ -8,18 +8,62 @@ import { supabaseManager } from '../db/supabase';
  * @param limit - The number of items per page.
  * @returns A Supabase query builder object.
  */
-export function buildFindProductsPaginatedQuery(page: number, limit: number) {
+export function buildFindProductsPaginatedQuery({
+  page,
+  limit,
+  sort,
+  q,
+  category,
+  min_price,
+  max_price,
+  metal_type,
+  stone_type,
+  is_featured
+}: {
+  page: number; limit: number; sort?: string; q?: string; category?: string; min_price?: number; max_price?: number; metal_type?: string; stone_type?: string; is_featured?: boolean;
+}) {
   const client = supabaseManager.getClient();
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit - 1;
+  const start = (page - 1) * limit;
+  const end = start + limit - 1;
 
-  // Build the query and return the builder instance.
-  // We've removed the manual type annotation to let TypeScript infer it correctly.
-  const queryBuilder = client
+  let query = client
     .from('products')
-    .select('id, name, slug, price, image_urls', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(startIndex, endIndex);
+    .select('id, name, slug, price, image_urls, category, rating, reviews_count, items_sold, stock_quantity, is_featured, description', { count: 'exact' });
 
-  return queryBuilder;
+  // filters
+  if (category) query = query.eq('category', category);
+  if (metal_type) query = query.eq('metal_type', metal_type);
+  if (stone_type) query = query.eq('stone_type', stone_type);
+  if (typeof is_featured !== 'undefined') query = query.eq('is_featured', is_featured);
+
+  if (min_price) query = query.gte('price', min_price);
+  if (max_price) query = query.lte('price', max_price);
+
+  // simple text search (Supabase full text or ilike fallback)
+  if (q) {
+    // prefer FTS column if present, else use ilike on name/description
+    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`);
+  }
+
+  // sorting
+  switch (sort) {
+    case 'best_sellers':
+      query = query.order('items_sold', { ascending: false });
+      break;
+    case 'price_asc':
+      query = query.order('price', { ascending: true });
+      break;
+    case 'price_desc':
+      query = query.order('price', { ascending: false });
+      break;
+    case 'popular':
+      query = query.order('views', { ascending: false });
+      break;
+    case 'newest':
+    default:
+      query = query.order('created_at', { ascending: false });
+  }
+
+  query = query.range(start, end);
+  return query;
 }
