@@ -47,11 +47,11 @@ export function HeroSection() {
         */}
         <div className="text-left z-10 md:mr-[30%]">
           {/* Using the corrected text color */}
-          <h1 className={`text-4xl md:text-5xl font-light ${correctedDarkTextColor} uppercase whitespace-nowrap`}> 
+          <h1 className={`text-3xl md:text-5xl font-light ${correctedDarkTextColor} uppercase whitespace-nowrap`}> 
             Timeless Elegance.
           </h1>
           {/* Using the corrected text color */}
-          <p className={`text-2xl mt-4 ${correctedDarkTextColor} md:text-lg uppercase whitespace-nowrap`}>
+          <p className={`text-xl mt-4 ${correctedDarkTextColor} md:text-lg uppercase whitespace-nowrap`}>
             Discover our new collection.
           </p>
 
