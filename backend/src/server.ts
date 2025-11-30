@@ -68,13 +68,11 @@ const start = async () => {
     await connectMongoDB();
     const mongooseConnection = getMongooseConnection();
     server.decorate('mongo', mongooseConnection);
-    logger.info('MongoDB connected successfully');
 
     // Supabase
     await supabaseManager.initialize();
     const supabaseClient = supabaseManager.getClient();
     server.decorate('supabase', supabaseClient);
-    logger.info('Supabase initialized successfully');
 
     // Routes
     await server.register(productRoutes, { prefix: '/api/v1' });
