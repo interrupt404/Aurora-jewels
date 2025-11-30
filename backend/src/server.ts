@@ -42,6 +42,8 @@ server.get('/', async (req, reply) => ({
   version: '1.0',
 }));
 
+server.get('/health', async () => ({ status: 'ok', time: Date.now() }));
+
 // =========================
 // onSend Hook
 // =========================
@@ -69,7 +71,7 @@ const start = async () => {
     logger.info('MongoDB connected successfully');
 
     // Supabase
-    supabaseManager.initialize();
+    await supabaseManager.initialize();
     const supabaseClient = supabaseManager.getClient();
     server.decorate('supabase', supabaseClient);
     logger.info('Supabase initialized successfully');
