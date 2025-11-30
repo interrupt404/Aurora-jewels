@@ -6,25 +6,25 @@ const categories = [
     name: "Rings",
     image:
       "https://vfobmlxlvipmdvgcwoqd.supabase.co/storage/v1/object/public/product-images/category-rings-1.png",
-    href: "/products?category=rings",
+    href: "/products?category=Rings",
   },
   {
     name: "Earrings",
     image:
       "https://vfobmlxlvipmdvgcwoqd.supabase.co/storage/v1/object/public/product-images/category-earrings-1.png",
-    href: "/products?category=earrings",
+    href: "/products?category=Earrings",
   },
   {
     name: "Bracelets",
     image:
       "https://vfobmlxlvipmdvgcwoqd.supabase.co/storage/v1/object/public/product-images/category-bracelets-1.png",
-    href: "/products?category=bracelets",
+    href: "/products?category=Bracelets",
   },
   {
     name: "Necklaces",
     image:
       "https://vfobmlxlvipmdvgcwoqd.supabase.co/storage/v1/object/public/product-images/category-necklaces-1.png",
-    href: "/products?category=necklaces",
+    href: "/products?category=Necklaces",
   },
 ];
 

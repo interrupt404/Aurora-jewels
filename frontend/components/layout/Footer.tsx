@@ -1,6 +1,6 @@
 export function Footer() {
     return (
-      <footer className="border-t bg-neutral-50 py-8 text-sm text-neutral-600 mt-10">
+      <footer className="border-t bg-neutral-100 py-8 text-sm text-neutral-600 mt-10">
         <div className="mx-auto max-w-7xl grid gap-8 px-6 md:grid-cols-3">
           <div>
             <h3 className="font-semibold text-neutral-800 mb-2">Explore</h3>

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { fetchNewArrivals } from "@/lib/api";
+import { fetchNewArrivals } from "@/lib/queries/useHome";
 
 export async function NewArrivals() {
   const products = await fetchNewArrivals();

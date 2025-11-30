@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { fetchBestSellers } from "@/lib/api";
+import { fetchBestSellers } from "@/lib/queries/useHome";
 
 export async function BestSellers() {
   const products = await fetchBestSellers();
