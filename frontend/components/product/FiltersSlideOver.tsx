@@ -70,7 +70,6 @@ export default function FiltersSlideOver({ open, onClose, onApply, options, init
 
         <div className="p-4 overflow-auto flex-1">
           <FiltersSidebar
-            key={JSON.stringify(draft ?? {})}
             onChange={(f) => setDraft(f)}
             options={options}
             initial={draft}
