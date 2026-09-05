@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function ProductCard({ product, className = '' }: Props) {
-  const { name, slug, price, thumbnailUrl } = product;
+  const { name, price, thumbnailUrl } = product;
 
   return (
     <div className={`group relative ${className}`}>
