@@ -15,9 +15,9 @@ export default function ProductCard({ product, className = '' }: Props) {
   return (
     <div className={`group relative ${className}`}>
       <Link
-        href={`/products/${slug}`}
+        href="/products"
         className="block overflow-hidden rounded-[6px] bg-white border border-neutral-100 hover:shadow-lg transition-shadow duration-200"
-        aria-label={`View ${name}`}
+        aria-label={name}
       >
         {/* image */}
         <div className="relative aspect-[1/1] w-full bg-neutral-50 flex items-center justify-center overflow-hidden">
@@ -39,11 +39,6 @@ export default function ProductCard({ product, className = '' }: Props) {
           />
           )}
 
-          {/* quick view overlay */}
-          <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="mb-4 rounded bg-black/70 px-3 py-1 text-xs text-white">Quick view</div>
-          </div>
-
           {/* featured badge */}
           {product.isFeatured ? (
             <span className="absolute left-3 top-3 inline-flex items-center rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
@@ -58,7 +53,6 @@ export default function ProductCard({ product, className = '' }: Props) {
           <p className="mt-2 text-sm text-neutral-700 font-semibold">
             {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price)}
           </p>
-          <div className="mt-2 text-xs text-neutral-400">View details</div>
         </div>
       </Link>
     </div>
