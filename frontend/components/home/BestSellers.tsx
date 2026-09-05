@@ -23,7 +23,7 @@ export async function BestSellers() {
           {products.map((p) => (
             <Link
               key={p.id}
-              href={`/products/${p.slug}`}
+              href="/products"
               className="group block w-[220px] overflow-hidden rounded-sm bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-md"
             >
               {/* Image area */}
@@ -40,9 +40,6 @@ export async function BestSellers() {
               {/* Text area */}
               <div className="mt-3 px-2 text-center">
                 <h3 className="text-sm font-medium text-neutral-900">{p.name}</h3>
-                <p className="mt-1 text-xs text-neutral-500">
-                  View more details
-                </p>
               </div>
 
               <div className="mt-3 mb-4 text-center">

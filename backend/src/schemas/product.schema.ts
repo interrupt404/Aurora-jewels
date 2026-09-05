@@ -65,7 +65,7 @@ const getProductsResponseSchema = {
 };
 
 // Schema for the entire 500 Error response (remains unchanged, it's already generic)
-const errorResponseSchema = {
+export const errorResponseSchema = {
   type: 'object',
   properties: {
     status: { type: 'string', enum: ['fail'] },
