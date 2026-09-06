@@ -1,13 +1,10 @@
 import mongoose from 'mongoose';
-import 'dotenv/config'; // Make sure this is at the top of this file too if it's used directly
-import { logger } from '../utils/logger'; // Assuming you have a logger here
+import 'dotenv/config';
+import { logger } from '../utils/logger';
 
-const mongoUri: string = process.env.MONGO_URI || ""; // Ensure it's a string
+const mongoUri: string = process.env.MONGO_URI || "";
 
-// Add an interface for the Mongoose connection object for better type safety
-interface MongooseConnection extends mongoose.Connection {}
-
-let _mongooseConnection: MongooseConnection | null = null; // Store the connection instance
+let _mongooseConnection: mongoose.Connection | null = null;
 
 export const connectMongoDB = async (): Promise<void> => {
     if (!mongoUri) {
@@ -22,26 +19,21 @@ export const connectMongoDB = async (): Promise<void> => {
     }
 
     try {
-        // Mongoose handles pooling internally
-        await mongoose.connect(mongoUri);
-        _mongooseConnection = mongoose.connection; // Store the active connection
+        await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
+        _mongooseConnection = mongoose.connection;
         logger.info('MongoDB connected successfully.');
-    } catch (error) {
-        logger.error('MongoDB connection error. Check MONGO_URI:', error as any);
-        // It's usually fine to let the server start, as Mongo is for secondary data (logs/analytics)
-        // Re-throw or exit if MongoDB is critical for your app's startup
-        throw error; // Changed to throw, as it's better to explicitly handle this upstream
+    } catch (error: any) {
+        logger.warn('⚠️ MongoDB connection failed. Skipping MongoDB step to allow server deployment:', error.message || error);
+        _mongooseConnection = null;
     }
 };
 
 /**
- * Returns the active Mongoose connection instance.
- * @returns {MongooseConnection} The Mongoose connection object.
- * @throws {Error} If the MongoDB connection has not been established.
+ * Returns the active Mongoose connection instance or null if unavailable.
  */
-export const getMongooseConnection = (): MongooseConnection => {
+export const getMongooseConnection = (): mongoose.Connection | null => {
     if (!_mongooseConnection || _mongooseConnection.readyState !== 1) {
-        throw new Error('MongoDB connection is not established. Call connectMongoDB() first.');
+        return null;
     }
     return _mongooseConnection;
 };

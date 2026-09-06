@@ -1,27 +1,11 @@
 // src/controllers/product.controller.ts
-import { FastifyRequest, FastifyReply } from 'fastify';
 import { logger } from '../utils/logger';
-import { sendSuccess, sendError } from '../utils/response';
-import { productService } from '../services/product.service';
+import { ApiResponse } from '../utils/response';
+import { getProducts } from '../services/product.service';
 
-interface GetProductsQuery {
-  page?: string;
-  limit?: string;
-  sort?: string;
-  q?: string;
-  category?: string;
-  min_price?: string;
-  max_price?: string;
-  metal_type?: string;
-  stone_type?: string;
-  is_featured?: string; // "true" | "false"
-}
-
-export async function getProductsHandler(
-  request: FastifyRequest<{ Querystring: GetProductsQuery }>,
-  reply: FastifyReply
-) {
+export const getProductsHandler = async (request: any, reply: any) => {
   logger.info('Controller: Handling request to get products.');
+  const apiResponse = new ApiResponse();
 
   try {
     const {
@@ -35,7 +19,7 @@ export async function getProductsHandler(
       metal_type,
       stone_type,
       is_featured,
-    } = request.query;
+    } = request.query || {};
 
     const parsedPage = Number.parseInt(page, 10) || 1;
     const parsedLimit = Number.parseInt(limit, 10) || 12;
@@ -55,7 +39,7 @@ export async function getProductsHandler(
     };
 
     // Call service with the options object
-    const { products, count } = await productService.getProducts(opts);
+    const { products, count } = await getProducts(opts);
 
     const totalItems = count ?? 0;
     const perPage = parsedLimit;
@@ -74,9 +58,16 @@ export async function getProductsHandler(
     logger.info(
       `Controller: Successfully processed request for ${products?.length || 0} products.`
     );
-    return sendSuccess(reply, responsePayload);
+
+    apiResponse.successResponse.data = responsePayload;
+    apiResponse.successResponse.response = { data: responsePayload };
+
+    return reply.status(200).send(apiResponse.successResponse);
   } catch (err: any) {
     logger.error('Controller Error: Failed to get products.', err);
-    return sendError(reply, 'An unexpected error occurred while fetching products.');
+    apiResponse.failResponse.error = {
+      message: 'An unexpected error occurred while fetching products.',
+    };
+    return reply.status(500).send(apiResponse.failResponse);
   }
-}
+};

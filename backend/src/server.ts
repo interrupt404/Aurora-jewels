@@ -3,18 +3,20 @@ import fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import { supabaseManager } from './db/supabase';
 import { connectMongoDB, getMongooseConnection } from './db/mongo';
 import productRoutes from './routes/v1/product.route';
+import cartRoutes from './routes/v1/cart.route';
 import { logger } from './utils/logger';
 import { Connection as MongooseConnection } from 'mongoose';
+import { DEFAULT_PORT, DEFAULT_HOST } from './constants';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    mongo: MongooseConnection;
+    mongo: MongooseConnection | null;
     supabase: any;
   }
 }
 
-const PORT = parseInt(process.env.PORT || '3001', 10);
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = parseInt(process.env.PORT || String(DEFAULT_PORT), 10);
+const HOST = process.env.HOST || DEFAULT_HOST;
 
 const server = fastify({ logger: true });
 
@@ -65,9 +67,14 @@ server.addHook('onSend', async (req: FastifyRequest, reply: FastifyReply, payloa
 const start = async () => {
   try {
     // MongoDB
-    await connectMongoDB();
-    const mongooseConnection = getMongooseConnection();
-    server.decorate('mongo', mongooseConnection);
+    try {
+      await connectMongoDB();
+      const mongooseConnection = getMongooseConnection();
+      server.decorate('mongo', mongooseConnection);
+    } catch (mongoErr) {
+      logger.warn('⚠️ Skipping MongoDB connection due to startup error:', mongoErr);
+      server.decorate('mongo', null);
+    }
 
     // Supabase
     await supabaseManager.initialize();
@@ -76,6 +83,7 @@ const start = async () => {
 
     // Routes
     await server.register(productRoutes, { prefix: '/api/v1' });
+    await server.register(cartRoutes, { prefix: '/api/v1' });
 
     // Start server
     await server.listen({ port: PORT, host: HOST });
