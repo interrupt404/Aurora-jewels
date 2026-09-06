@@ -1,5 +1,6 @@
 // src/queries/product.query.ts
 import { supabaseManager } from '../db/supabase';
+import { TABLE_PRODUCTS } from '../constants';
 
 /**
  * Builds a Supabase query to find a paginated list of products.
@@ -18,16 +19,25 @@ export function buildFindProductsPaginatedQuery({
   max_price,
   metal_type,
   stone_type,
-  is_featured
+  is_featured,
 }: {
-  page: number; limit: number; sort?: string; q?: string; category?: string; min_price?: number; max_price?: number; metal_type?: string; stone_type?: string; is_featured?: boolean;
+  page: number;
+  limit: number;
+  sort?: string;
+  q?: string;
+  category?: string;
+  min_price?: number;
+  max_price?: number;
+  metal_type?: string;
+  stone_type?: string;
+  is_featured?: boolean;
 }) {
   const client = supabaseManager.getClient();
   const start = (page - 1) * limit;
   const end = start + limit - 1;
 
   let query = client
-    .from('products')
+    .from(TABLE_PRODUCTS)
     .select('id, name, slug, price, image_urls, category, rating, reviews_count, items_sold, stock_quantity, is_featured, description', { count: 'exact' });
 
   // filters
