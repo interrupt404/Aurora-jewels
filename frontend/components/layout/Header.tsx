@@ -1,8 +1,21 @@
 'use client';
+// components/layout/Header.tsx
+// ──────────────────────────────────────────────────────────────────
+// Site header with navigation, mobile drawer, and cart bag icon.
+//
+// Cart integration:
+//  • ShoppingBag icon is ALWAYS visible (not hidden on mobile)
+//  • Animated badge pill shows cart count (only after hydration)
+//  • Clicking the bag icon opens the CartDrawer + triggers validation
+// ──────────────────────────────────────────────────────────────────
+
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X, Search, Heart, ShoppingBag } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useCartStore } from '@/lib/store/useCartStore';
+import { useCartValidation } from '@/lib/queries/useCartValidation';
 
 const LINKS = ['Rings', 'Necklaces', 'Earrings', 'Bracelets', 'Sale'];
 
@@ -13,8 +26,44 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
 
+  // ── Cart state (reactive items selector for instant badge updates) ──
+  const items = useCartStore((s) => s.items);
+  const hasHydrated = useCartStore((s) => s.hasHydrated);
+  const openDrawer = useCartStore((s) => s.openDrawer);
+  const { validateCart } = useCartValidation();
+
+  const totalCount = hasHydrated ? items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+
+  const prevCountRef = useRef(totalCount);
+  const [isWiggling, setIsWiggling] = useState(false);
+
+  useEffect(() => {
+    if (totalCount > prevCountRef.current) {
+      setIsWiggling(true);
+      const timer = setTimeout(() => setIsWiggling(false), 500);
+      prevCountRef.current = totalCount;
+      return () => clearTimeout(timer);
+    }
+    prevCountRef.current = totalCount;
+  }, [totalCount]);
+
+  const handleBagClick = () => {
+    openDrawer();
+    // Trigger validation when user opens the drawer (scenario 1)
+    validateCart();
+  };
+
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
+    if (open) {
+      document.body.setAttribute('data-menu-open', 'true');
+    } else {
+      document.body.removeAttribute('data-menu-open');
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.removeAttribute('data-menu-open');
+    };
   }, [open]);
 
   useEffect(() => {
@@ -57,7 +106,38 @@ export function Header() {
 
           <Search className="h-5 w-5 cursor-pointer hover:text-amber-600 hidden sm:block" />
           <Heart className="h-5 w-5 cursor-pointer hover:text-amber-600 hidden sm:block" />
-          <ShoppingBag className="h-5 w-5 cursor-pointer hover:text-amber-600 hidden sm:block" />
+          
+          {/* Shopping Bag — always visible on ALL screen sizes.
+              Previously had `hidden sm:block` which hid it on mobile. */}
+          <button
+            onClick={handleBagClick}
+            className="relative flex items-center justify-center p-1 hover:text-amber-600 transition-colors"
+            aria-label={`Shopping bag${totalCount > 0 ? `, ${totalCount} items` : ''}`}
+          >
+            <motion.div
+              animate={isWiggling ? { scale: [1, 1.25, 0.95, 1], rotate: [0, -14, 14, -6, 0] } : {}}
+              transition={{ duration: 0.45, ease: "easeInOut" }}
+            >
+              <ShoppingBag className="h-5 w-5" />
+            </motion.div>
+
+            {/* Animated badge pill — only renders when hydrated and count > 0.
+                Uses Framer Motion scale animation for a satisfying "pop" effect. */}
+            <AnimatePresence>
+              {hasHydrated && totalCount > 0 && (
+                <motion.span
+                  key="cart-badge"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                  className="absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-bold text-white"
+                >
+                  {totalCount > 99 ? '99+' : totalCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
 
           <button
             className="md:hidden p-2 rounded-md border bg-white shadow-sm"
@@ -72,7 +152,7 @@ export function Header() {
       {/* ───────────────────────────────────────────── */}
       {/* BACKDROP (opaque premium dark layer) */}
       <div
-        className={`fixed inset-0 bg-black/50 backdrop-blur transition-opacity duration-300 z-40 ${
+        className={`fixed inset-0 bg-black/50 backdrop-blur transition-opacity duration-300 z-50 ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setOpen(false)}

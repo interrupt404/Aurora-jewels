@@ -45,7 +45,7 @@ export const getProductsHandler = async (request: any, reply: any) => {
     const perPage = parsedLimit;
     const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
 
-    const responsePayload = {
+    apiResponse.successResponse.response.data.push({
       products,
       pagination: {
         currentPage: parsedPage,
@@ -53,21 +53,18 @@ export const getProductsHandler = async (request: any, reply: any) => {
         totalPages,
         totalItems,
       },
-    };
+    });
 
     logger.info(
       `Controller: Successfully processed request for ${products?.length || 0} products.`
     );
-
-    apiResponse.successResponse.data = responsePayload;
-    apiResponse.successResponse.response = { data: responsePayload };
-
     return reply.status(200).send(apiResponse.successResponse);
   } catch (err: any) {
     logger.error('Controller Error: Failed to get products.', err);
-    apiResponse.failResponse.error = {
-      message: 'An unexpected error occurred while fetching products.',
-    };
+    apiResponse.failResponse.error.push({
+      code: 500,
+      message: err.message || 'An unexpected error occurred while fetching products.',
+    });
     return reply.status(500).send(apiResponse.failResponse);
   }
 };

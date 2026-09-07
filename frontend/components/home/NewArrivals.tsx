@@ -1,6 +1,14 @@
-import Image from "next/image";
-import Link from "next/link";
+// components/home/NewArrivals.tsx
+// ──────────────────────────────────────────────────────────────────
+// New Arrivals section — Server Component.
+//
+// Same architecture rationale as BestSellers: server fetch with
+// Next.js caching, passing serializable product data as props to
+// the cart-aware ProductCard (the client boundary).
+// ──────────────────────────────────────────────────────────────────
+
 import { fetchNewArrivals } from "@/lib/queries/useHome";
+import ProductCard from "@/components/product/ProductCard";
 
 export async function NewArrivals() {
   const products = await fetchNewArrivals();
@@ -21,33 +29,11 @@ export async function NewArrivals() {
         {/* Product cards grid */}
         <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-4 place-items-center">
           {products.map((p) => (
-            <Link
+            <ProductCard
               key={p.id}
-              href="/products"
-              className="group block w-[220px] overflow-hidden rounded-sm bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-md"
-            >
-              {/* Image area */}
-              <div className="relative aspect-[4/4] w-full overflow-hidden bg-neutral-100">
-                <Image
-                  src={p.thumbnailUrl}
-                  alt={p.name}
-                  fill
-                  sizes="(max-width:768px) 50vw, 220px"
-                  className="object-contain transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Text area */}
-              <div className="mt-3 px-2 text-center">
-                <h3 className="text-sm font-medium text-neutral-900">{p.name}</h3>
-              </div>
-
-              <div className="mt-3 mb-4 text-center">
-                <p className="text-base font-semibold text-neutral-800">
-                  ${p.price.toLocaleString()}
-                </p>
-              </div>
-            </Link>
+              product={p}
+              className="w-[220px]"
+            />
           ))}
         </div>
       </div>

@@ -17,9 +17,10 @@ export const validateCartHandler = async (request: any, reply: any) => {
     // Validate basic input presence
     if (!body.items || !Array.isArray(body.items)) {
       logger.warn('Controller: Request body missing required "items" array.');
-      apiResponse.failResponse.error = {
+      apiResponse.failResponse.error.push({
+        code: 400,
         message: 'Request body must include an "items" array.',
-      };
+      });
       return reply.status(400).send(apiResponse.failResponse);
     }
 
@@ -28,16 +29,15 @@ export const validateCartHandler = async (request: any, reply: any) => {
 
     logger.info(`Controller: Successfully validated cart batch containing ${result.items?.length || 0} items.`);
 
-    apiResponse.successResponse.data = result;
-    apiResponse.successResponse.response = { data: result };
+    apiResponse.successResponse.response.data.push(result);
 
     return reply.status(200).send(apiResponse.successResponse);
   } catch (err: any) {
     logger.error('Controller Error: Failed to validate cart batch.', err);
-    apiResponse.failResponse.error = {
-      message: 'An unexpected error occurred while validating cart items.',
-      details: err.message || String(err),
-    };
+    apiResponse.failResponse.error.push({
+      code: 500,
+      message: err.message || String(err),
+    });
     return reply.status(500).send(apiResponse.failResponse);
   }
 };

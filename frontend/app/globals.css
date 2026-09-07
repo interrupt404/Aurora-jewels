@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ──────────────────────────────────────────────────────────────────
+   Google Font: Playfair Display
+   Used for luxury serif headings throughout the cart system
+   ("YOUR SHOPPING BAG", "ORDER SUMMARY", estimated total, etc.)
+   ────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* CSS custom property so components can reference the serif font
+   without importing Tailwind config directly:
+   style={{ fontFamily: 'var(--font-serif)' }}                      */
+:root {
+  --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   iOS Safe Area
+   Ensures sticky footers (CartDrawer, mobile CTAs) don't overlap
+   with the home indicator on notched iPhones.
+   ────────────────────────────────────────────────────────────────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

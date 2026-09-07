@@ -1,6 +1,22 @@
-import Image from "next/image";
-import Link from "next/link";
+// components/home/BestSellers.tsx
+// ──────────────────────────────────────────────────────────────────
+// Best Sellers section — Server Component.
+//
+// Architecture: Server Component → server fetch → Client ProductCard
+//
+// This component remains a Server Component because:
+//  • Data fetching happens on the server (no browser API round-trip)
+//  • Next.js `{ next: { revalidate: 60 } }` caching is preserved
+//  • Section markup (headings, grid) stays out of the client bundle
+//  • ProductCard is already a 'use client' component — it receives
+//    serializable product props from the server and independently
+//    uses Zustand hooks for cart interactivity on the client side.
+//
+// The client boundary is at ProductCard, not at this section level.
+// ──────────────────────────────────────────────────────────────────
+
 import { fetchBestSellers } from "@/lib/queries/useHome";
+import ProductCard from "@/components/product/ProductCard";
 
 export async function BestSellers() {
   const products = await fetchBestSellers();
@@ -18,36 +34,15 @@ export async function BestSellers() {
           </p>
         </div>
 
-        {/* Product cards grid */}
+        {/* Product cards grid — ProductCard is a Client Component that
+            receives server-fetched product data as serializable props. */}
         <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-4 place-items-center">
           {products.map((p) => (
-            <Link
+            <ProductCard
               key={p.id}
-              href="/products"
-              className="group block w-[220px] overflow-hidden rounded-sm bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-md"
-            >
-              {/* Image area */}
-              <div className="relative aspect-[4/4] w-full overflow-hidden bg-neutral-100">
-                <Image
-                  src={p.thumbnailUrl}
-                  alt={p.name}
-                  fill
-                  sizes="(max-width:768px) 50vw, 220px"
-                  className="object-contain transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Text area */}
-              <div className="mt-3 px-2 text-center">
-                <h3 className="text-sm font-medium text-neutral-900">{p.name}</h3>
-              </div>
-
-              <div className="mt-3 mb-4 text-center">
-                <p className="text-base font-semibold text-neutral-800">
-                  ${p.price.toLocaleString()}
-                </p>
-              </div>
-            </Link>
+              product={p}
+              className="w-[220px]"
+            />
           ))}
         </div>
       </div>

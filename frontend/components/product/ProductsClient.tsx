@@ -234,7 +234,7 @@ export default function ProductsClient() {
       </div>
 
       {/* MOBILE bottom bar */}
-      <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4 flex justify-center">
+      <div className="lg:hidden fixed bottom-4 left-0 right-0 z-30 px-4 flex justify-center transition-opacity duration-200 [body[data-menu-open]_&]:opacity-0 [body[data-menu-open]_&]:pointer-events-none">
         <div className="w-full max-w-3xl bg-white border rounded-xl shadow-lg flex items-center gap-3 p-2">
           <button
             onClick={() => setMobileFilterOpen(true)}

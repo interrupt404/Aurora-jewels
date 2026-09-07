@@ -41,9 +41,12 @@ async function fetchProducts(params: ProductQueryParams): Promise<ProductsRespon
   if (!res.ok) throw new Error('Failed to fetch products');
 
   const json = await res.json();
-  return json?.data ?? {
-    products: [],
-    pagination: { currentPage: 1, totalPages: 1, totalItems: 0 },
+  const rawData = json?.response?.data ?? json?.data;
+  const target = Array.isArray(rawData) ? rawData[0] : rawData;
+
+  return {
+    products: target?.products ?? (Array.isArray(target) ? target : []),
+    pagination: target?.pagination ?? { currentPage: 1, totalPages: 1, totalItems: 0 },
   };
 }
 
