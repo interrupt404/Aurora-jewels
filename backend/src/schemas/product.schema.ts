@@ -32,40 +32,16 @@ export const getProductsOptions = {
           status: { type: 'string', enum: ['success'] },
           api_version: { type: 'string' },
           api_code: { type: 'number' },
-          response: { type: 'object', additionalProperties: true },
-          data: {
+          response: {
             type: 'object',
             properties: {
-              products: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    name: { type: 'string' },
-                    slug: { type: 'string' },
-                    price: { type: 'number' },
-                    thumbnailUrl: { type: ['string', 'null'], format: 'uri' },
-                  },
-                  additionalProperties: true,
-                },
-              },
-              pagination: {
-                type: 'object',
-                properties: {
-                  currentPage: { type: 'number' },
-                  totalPages: { type: 'number' },
-                  totalItems: { type: 'number' },
-                },
-                required: ['currentPage', 'totalPages', 'totalItems'],
-                additionalProperties: false,
-              },
+              data: { type: 'array' },
             },
-            required: ['products', 'pagination'],
-            additionalProperties: false,
+            required: ['data'],
+            additionalProperties: true,
           },
         },
-        required: ['status', 'api_version', 'data'],
+        required: ['status', 'api_version', 'api_code', 'response'],
         additionalProperties: true,
       },
 
@@ -77,7 +53,7 @@ export const getProductsOptions = {
           api_code: { type: 'number' },
           error: { type: ['object', 'array'] },
         },
-        required: ['status', 'api_version', 'error'],
+        required: ['status', 'api_version', 'api_code', 'error'],
         additionalProperties: true,
       },
     },

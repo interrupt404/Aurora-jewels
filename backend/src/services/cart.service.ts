@@ -68,23 +68,6 @@ export const validateCart = async (body: any) => {
         message: `Product with ID '${inputItem.productId}' was not found in catalog.`,
       });
       hasStockIssues = true;
-
-      validatedItems.push({
-        productId: inputItem.productId,
-        name: 'Unknown Product',
-        slug: '',
-        thumbnailUrl: null,
-        clientPrice: roundCurrency(inputItem.clientPrice || 0),
-        serverPrice: 0,
-        isPriceChanged: true,
-        priceDifference: roundCurrency(0 - (inputItem.clientPrice || 0)),
-        requestedQuantity: inputItem.quantity || 1,
-        availableStock: 0,
-        validQuantity: 0,
-        isAvailable: false,
-        hasInsufficientStock: true,
-        subtotal: 0,
-      });
       continue;
     }
 
